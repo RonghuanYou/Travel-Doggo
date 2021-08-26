@@ -1,0 +1,49 @@
+body {
+	background-color: black;
+ 	color: rgb(186, 180, 171);
+}
+
+
+.title-font{
+	font-style: italic;
+}
+
+.nav-color{
+	color: white;
+}
+
+.btn-bg{
+	background-color: #3895D3;
+	color: white;
+	border: 1px solid white;
+	
+}
+.bg-color{
+	background-color: black;
+}
+
+.font-color{
+	color: #3895D3;
+}
+
+
+.range-width{
+	width: 200px;
+}
+
+
+.rating-width{
+	width: 45px;
+}
+
+
+.ctable-color{
+ 	color: rgb(186, 180, 171);
+}
+
+#map {
+  height: 400px;
+  /* The height is 400 pixels */
+  width: 100%;
+  /* The width is the width of the web page */
+}
