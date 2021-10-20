@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ronghuan.project2.models.City;
+import com.ronghuan.project2.models.Comment;
 import com.ronghuan.project2.models.User;
 import com.ronghuan.project2.repositories.CityRepository;
+import com.ronghuan.project2.repositories.CommentRepository;
 import com.ronghuan.project2.repositories.UserRepository;
 
 @Service
@@ -18,6 +20,9 @@ public class MainService {
 	
 	@Autowired
 	private CityRepository cityRepo;
+	
+	@Autowired
+	private CommentRepository commentRepo;
 	
 	// --------------------- CRUD USERS ---------------------
 	// (CREATE) register user and hash their password
@@ -78,5 +83,17 @@ public class MainService {
     public void deleteCity(Long city_id) {
     	 cityRepo.deleteById(city_id);
     }
+    
+    
+    // GET A LIST OF CITIES BY A PARTICULAR CREATOR
+    public List<City> getAllMarkedCitiesByUser(User u){
+    	return cityRepo.findAllByCreator(u);
+    }
+           
+	// --------------------- CRUD COMMENT  ---------------------
+    public Comment saveComment(Comment c) {
+    	return commentRepo.save(c);
+    }
+    
         
 }

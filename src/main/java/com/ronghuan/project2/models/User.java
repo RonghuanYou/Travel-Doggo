@@ -1,12 +1,18 @@
 package com.ronghuan.project2.models;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -14,6 +20,8 @@ import javax.persistence.Transient;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="users")
@@ -47,7 +55,27 @@ public class User {
     
     
     // --------------------- RELATIONSHIPS ---------------------    
-
+    // ONE TO MANY (USER - CITIES)
+    @JsonIgnore
+    @OneToMany(mappedBy="creator", fetch=FetchType.LAZY)
+    private List<City> createdCities;
+    
+    // MANY TO MANY (USER - REVIEWS)
+    @JsonIgnore
+    @OneToMany(mappedBy="visitor", fetch=FetchType.LAZY)
+    private List<Comment> comments;
+    
+    // MANY TO MANY WITHOUT MIDDLE MODEL (USER ADD CITIES INTO WISHLIST)
+    @JsonIgnore
+    @ManyToMany(fetch=FetchType.LAZY)
+    @JoinTable(
+    	name = "users_cities",
+    	joinColumns = @JoinColumn(name = "user_id"),
+    	inverseJoinColumns = @JoinColumn(name = "city_id")    		
+    )
+    private List<City> addingCities;
+    
+    
     // CONSTRUCTORS
     // EMPTY
     public User() {
@@ -112,7 +140,33 @@ public class User {
 	public void setPasswordConfirmation(String passwordConfirmation) {
 		this.passwordConfirmation = passwordConfirmation;
 	}
+	
+	public List<Comment> getComments() {
+		return comments;
+	}
 
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
+	}
+	
+
+	public List<City> getCreatedCities() {
+		return createdCities;
+	}
+
+	public void setCreatedCities(List<City> createdCities) {
+		this.createdCities = createdCities;
+	}
+
+	public List<City> getAddingCities() {
+		return addingCities;
+	}
+
+	public void setAddingCities(List<City> addingCities) {
+		this.addingCities = addingCities;
+	}
+
+	// ---
 	public Date getCreatedAt() {
 		return createdAt;
 	}

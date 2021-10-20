@@ -14,9 +14,8 @@
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
 	<link rel="stylesheet" href="/css/main.css" />
 	<meta charset="UTF-8">
-	<title>City</title>
+	<title>Travel Doggo</title>
 </head>
-
 <body>
 	<div class="bg-dark d-flex align-items-center justify-content-around nav-color border-bottom">
 		<h2 class="title-font">Travel Doggo</h2>
@@ -29,49 +28,16 @@
 			<p class="mt-3"><c:out value="${ user.name }"/>, <c:out value="${ user.location }"/></p>
 		</div>
 	</div>
-	
-	
-	<div class="container">
-		<div class="d-flex justify-content-between mt-3">
-			<div>
-				<h4><c:out value="${ city.name }"/></h4>
-	
-				<p>Review: <c:out value="${ city.comment }"/> </p>
-				<p>Rating: <c:out value="${ city.rating }"/></p>
-				
-				<p>Visit Date: <fmt:formatDate type="date" value="${ city.date }"/> </p>
-				<p>Created by: <c:out value="${ city.creator.name }"/></p>
-		 		<p>Created At: <c:out value="${ city.createdAt }"/></p>
-			</div>
+	<div class="container mt-3">
+		<div class="ml-6">
+			<h4>Your Travel WishList:</h4>
 			
-			<div>
-				<c:if test="${ !city.comments.isEmpty() }">
-					<h4>More Reviews:</h4>
-					<c:forEach var="comment" items="${ city.comments }">
-						<p>
-							Review From <c:out value="${ comment.visitor.name }"/> <br />
-							<c:out value="${comment.review}"></c:out><br />	
-							---------------------------------------------------
-						</p>									
-					</c:forEach>
-				</c:if>
-				
-				
-				<h6>New Review:</h6>
-				<form:form action="/comment/create" method="POST" modelAttribute="commentObj">
-					<form:input value="${ user.id }" path="visitor" type="hidden"/>
-					<form:input value="${ city.id }" path="city" type="hidden"/>
-					
-					<p>
-						<form:input path="review" type="textarea"/>
-					</p>
-					<button class='btn btn-bg'>Submit</button>
-				</form:form>
-			</div>
+			<c:forEach var="city" items="${ user.addingCities }">
+				<ul>
+					<li><c:out value="${ city.name }"/></li>
+				</ul>
+			</c:forEach>		
 		</div>
-
-
-		
 	</div>
 </body>
 </html>

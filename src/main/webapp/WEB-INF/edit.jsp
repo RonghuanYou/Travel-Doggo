@@ -8,38 +8,59 @@
 <head>
 	<!-- CSS only -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
-	<link rel="stylesheet" href="css/main.css" />
+	<link rel="stylesheet" href="/css/main.css" />
+	
 	<meta charset="UTF-8">
 	<title>Travel Doggo</title>
 </head>
 <body>
+	<div class="bg-dark d-flex align-items-center justify-content-around nav-color border-bottom">
+		<h2 class="title-font">Travel Doggo</h2>
+
+		<div class="d-flex align-items-center">
+			<a href="/dashboard" class="nav-color">Dashboard</a>
+			<a href="/logout" class="nav-color mr-auto p-2">Log Out</a>
+			<p class="mt-3"><c:out value="${ user.name }"/>, <c:out value="${ user.location }"/></p>
+		</div>
+	</div>
 	<div class="container">
-		<form:form action="/traveldoggos/${ cityObj.id }/edit" method="POST" modelAttribute="cityObj">
+		<h4 class="mt-3">Edit City Information</h4>
+		<form:form action="/traveldoggos/${ cityObj.id }/edit" method="POST" modelAttribute="cityObj" class="mt-3">
 	        <input type="hidden" name="_method" value="put">
-			<p>
-				City Name:
-				<form:input path="name"/>
-				<form:errors path="name"/>
-			</p>
+			<form:input path="creator" value="${ user.id }" type="hidden"/>
 			
-			<p>
-				Date:
-				<form:input path="date" type="date"/>
-				<form:errors path="date"/>
+			<p class="input-group mb-3 input-width">
+				<span class="input-group-text">City Name</span>
+				<form:input path="name"  class="grey-bg form-control"/> 				
 			</p>
+			<p><form:errors path="name" class="alert alert-danger"/></p>
 			
-			<p>
-				Comment:
-				<form:input path="comment"/>
-				<form:errors path="comment"/>
+			
+			
+			<p class="input-group mb-3 input-width">
+				<span class="input-group-text">Date</span>
+				<form:input path="date" type="date" class="form-control"/>
 			</p>
-			<p>
-				Rating(1-100):
-				<form:input path="rating" type="number"/>
-				<form:errors path="rating"/>
+			<p><form:errors path="date" class="alert alert-danger"/></p>
+					
+					
+			<p class="input-group mb-3 input-width">
+				<span class="input-group-text">Rating(1-100)</span>
+				<form:input path="rating" type="number" class="form-control"/> 
 			</p>
-			<button>Update</button>
+			<p><form:errors path="rating" class="alert alert-danger"/></p>	
+			
+			
+			<p class="input-group mb-3 input-width">
+				<span class="input-group-text">Comment</span>
+				<form:input path="comment" class="form-control"/>
+			</p>
+			<p><form:errors path="comment" class="alert alert-danger"/></p>
+			
+			
+			<button class='btn btn-bg'>Update</button>
 		</form:form>
 	</div>
+	
 </body>
 </html>

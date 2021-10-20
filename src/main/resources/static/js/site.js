@@ -1,8 +1,7 @@
-console.log("js file!");
-
-
 var city = ""
 var defaultFlag = 1
+// Note: Use your weatherAPI
+// var weatherAPI = "xxx"
 
 // get user input location
 const setLocation = (event) => {
@@ -10,18 +9,29 @@ const setLocation = (event) => {
     console.log(city)
 }
 
+// get user location in db
+async function getUserLocation(){
+	let userCity = ""
+	await fetch("http://localhost:8080/location")
+	.then(res => res.json())
+	.then(data => {
+		userCity = data.location
+	})
+	return userCity
+}
+
 
 function getLocationInfo(){
 	// fetch current weather info by city
-	fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=a660c205d82c83622a0e4496eb8af773`)
+	fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${weatherAPI}`)
 		.then(response => response.json())
 		.then(data => {
-			console.log(data)
+			// console.log(data)
 			var html = `
 			<h3> ${city}, ${data.sys.country} </h3>
 			<h4> ${data.main.temp} °F</h4>
 			<p> Weather: ${data.weather[0].main}, ${data.weather[0].description}</p>
-			<p> Humidity: ${data.main.humidity}%, Wind Spped: ${data.wind.speed} mph </p>
+			<p> Humidity: ${data.main.humidity}%, Wind Speed: ${data.wind.speed} mph </p>
 			<p> Min Temperature: ${data.main.temp_min} °F</p>
 			<p> Max Temperature: ${data.main.temp_max} °F</p>
 			`
@@ -30,7 +40,7 @@ function getLocationInfo(){
 			let lat = data.coord.lat;
 			let lon = data.coord.lon;
 			// display one week forecast graph
-			fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely&units=imperial&appid=a660c205d82c83622a0e4496eb8af773`)
+			fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely&units=imperial&appid=${weatherAPI}`)
 			.then(response => response.json())
 			.then(data => {
 				console.log("temp", data)
@@ -51,6 +61,7 @@ function getLocationInfo(){
 				
 				var myChart = echarts.init(document.getElementById('forecast'));
 				option = {
+				     
 				    title: {
 				        text: 'Incoming Week Forecast',
 				      	textStyle: {
@@ -63,6 +74,7 @@ function getLocationInfo(){
 				    },
 				    legend: {
 				        data: ['Highest Temperature', 'Lowest Temperature'],
+		                x: 'right',
 				        textStyle: {
 				            color: 'rgb(186, 180, 171)',
 				            fontSize: 13,
@@ -70,9 +82,6 @@ function getLocationInfo(){
 				    },
 				    toolbox: {
 				        show: true,
-				        feature: {
-				            saveAsImage: {}
-				        }
 				    },
 				    xAxis: {
 				        type: 'category',
@@ -121,29 +130,26 @@ function getLocationInfo(){
 				};	
 		        myChart.setOption(option);
 			});
-				
-
-			
+						
 			let start = "1627110000",
 				end = "1629788400";
 								
-			// current air qualtiy value
-/*			fetch(`http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=a660c205d82c83622a0e4496eb8af773`)
-			.then(response => response.json())
-			.then(data => {
-*/
+
 			// previous month air quality value
-			fetch(`http://api.openweathermap.org/data/2.5/air_pollution/history?lat=${lat}&lon=${lon}&start=${start}&end=${end}&appid=a660c205d82c83622a0e4496eb8af773`)
+			fetch(`http://api.openweathermap.org/data/2.5/air_pollution/history?lat=${lat}&lon=${lon}&start=${start}&end=${end}&appid=${weatherAPI}`)
 			.then(response => response.json())
 			.then(data => {
 				let airQualityData = []
+				let AQIMonthSum = 0;
 				for (let i = 0; i < data.list.length; i++){
 					// get one month data
 					if ((data.list[i].dt - start) % 86400 == 0){
 						element = data.list[i]
+						AQIMonthSum += element.main.aqi
 						airQualityData.push([element.main.aqi, element.components.co, element.components.no2, element.components.o3, element.components.so2, element.components.pm2_5, element.components.pm10])
 					}
 				}
+				//  Air Quality Index. 
 				var myChart = echarts.init(document.getElementById('main'));
 				var lineStyle = {
 					    normal: {
@@ -153,13 +159,12 @@ function getLocationInfo(){
 					};
 		
 				option = {
+					text: "good",
 				    backgroundColor: '#161627',
 				    title: {
-				        text: 'Past Month AQI',
+				        text: 'Past Month AQI, Сoncentration of Components in Air',
 				        textStyle: {
 				            color: 'rgb(186, 180, 171)',
-				            left: 20
-
 				        }
 				    },
 				    legend: {
@@ -225,6 +230,12 @@ function getLocationInfo(){
 			};
 		    // use configuration item and data specified to show chart
 	        myChart.setOption(option);
+	        
+	        // calculate average AQI and pass it into jsp file
+	        let averageAQI = (AQIMonthSum/32).toFixed(1);
+	        let htmlAQIResult = `<p> Average of previous month AQI = ${averageAQI}</p>`
+			document.getElementById("aqi_result").innerHTML = htmlAQIResult;
+
 			console.log(airQualityData)
 			})
 	    })
@@ -232,14 +243,18 @@ function getLocationInfo(){
 }
 
 
-// default city is irvine
-if (defaultFlag){
-	var city = "Irvine"
-	getLocationInfo()
-	defaultFlag = 0
+// default city is user location
+async function showDefaultLocation(){
+	if (defaultFlag){
+		city = await getUserLocation()
+		getLocationInfo()
+		defaultFlag = 0
+	}
 }
 
+showDefaultLocation();
 
+// convert epoch unix time to human date (8/10)
 function epochValueToDate(epochList){
 	myDate = []
 	for (let i = 0; i < epochList.length; i++){

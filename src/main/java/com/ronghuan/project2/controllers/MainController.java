@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ronghuan.project2.models.City;
+import com.ronghuan.project2.models.Comment;
 import com.ronghuan.project2.models.User;
 import com.ronghuan.project2.services.MainService;
 import com.ronghuan.project2.validators.UserValidator;
@@ -86,6 +87,7 @@ public class MainController {
     	return "redirect:/";
     }
     
+    
     // -----
     @GetMapping("/dashboard")
     public String dashboard(Model model, HttpSession session) {
@@ -94,6 +96,7 @@ public class MainController {
 		model.addAttribute("user", mainServ.findUserById((Long)session.getAttribute("user_id")));
     	return "dashboard.jsp";
     }
+    
     
     // display form to create city
     @GetMapping("/traveldoggos")
@@ -105,6 +108,7 @@ public class MainController {
 
     	return "city.jsp";
     }
+    
     
     @PostMapping("/traveldoggos")
     public String createCity(Model model, HttpSession session, 
@@ -119,35 +123,59 @@ public class MainController {
     	}
     }
     
+    
     // READ ONE CITY
-//    @GetMapping("/traveldoggos/{id}/city")
-//    public String readCity() {
-//    	return "cityinfo.jsp";
-//    }
-//    
+    @GetMapping("/traveldoggos/{id}/city")
+    public String readCity(Model model, @PathVariable("id") Long city_id, 
+    	HttpSession session, @ModelAttribute("commentObj") Comment emptyComment) {
+    	// SHOW LOGIN USER INFO
+		model.addAttribute("user", mainServ.findUserById((Long)session.getAttribute("user_id")));
+		
+    	// PASS A PARTICULAR CITY TO JSP
+    	model.addAttribute("city", mainServ.getCity(city_id));
+    	
+    	return "cityinfo.jsp";
+    }
+    
+    
+    // CREATE USER REVIEW FOR ONE CITY
+    @PostMapping("/comment/create")
+    public String createReview(@ModelAttribute("commentObj") Comment filledComment) {
+    	// GET city_id BY commentObj
+    	Long city_id = filledComment.getCity().getId();
+    	mainServ.saveComment(filledComment);
+    	return "redirect:/traveldoggos/"+ city_id + "/city";
+    }
+    
     
     // SHOW FROM TO UPDATE CITY
-    @GetMapping("/traveldoggos/{id}/updatecity")
-    public String editCity(Model model, @PathVariable("id") Long city_id) {
+    @GetMapping("/traveldoggos/{id}/edit")
+    public String editCity(Model model, @PathVariable("id") Long city_id, HttpSession session) {
     	// login check
     	
-    	// PASS A PARTICULAR CITY TO JSOP
+    	// SHOW LOGIN USER INFO
+    	model.addAttribute("user", mainServ.findUserById((Long)session.getAttribute("user_id")));
+    	
+    	// PASS A PARTICULAR CITY TO JSP
     	model.addAttribute("cityObj", mainServ.getCity(city_id));
+
     	return "edit.jsp";
     }
 
     
     // PERFORM THE ACTION OF UPDATING CITY INFO
-    @PutMapping("/traveldoggos/{id}/updatecity")
-    public String udpateCity(@Valid @ModelAttribute("cityObj") City filledCity, BindingResult results) {
+    @PutMapping("/traveldoggos/{id}/edit")
+    public String udpateCity(@Valid @ModelAttribute("cityObj") City filledCity, BindingResult results, 
+    	Model model, HttpSession session) {
     	if (results.hasErrors()){
+    		model.addAttribute("user", mainServ.findUserById((Long)session.getAttribute("user_id")));
     		return "edit.jsp";
     	} else {
     		mainServ.saveCity(filledCity);
     		return "redirect:/traveldoggos";
     	}
     }
-    
+    	
     
     // DELETE AN CITY
     @GetMapping("/traveldoggos/{id}/delete")
@@ -160,11 +188,48 @@ public class MainController {
     }
     
     
+    // DISPLAY TEH TRAVEL WISH LIST
+    @GetMapping("/traveldoggos/wishlist")
+    public String displayWishlist(Model model, HttpSession session) {
+    	// check login
+    	
+		model.addAttribute("user", mainServ.findUserById((Long)session.getAttribute("user_id")));
+    	return "wishlist.jsp";
+    }
     
     
+    // ADD A CITY INTO TRAVEL WISHLIST (CREATE RELATIONSHIP BETWEEN USER AND CITY)
+    @GetMapping("/traveldoggos/{id}/add")
+    public String addCity(@PathVariable("id") Long city_id, HttpSession session) {
+    	// login check
+    	
+    	User oneUser = mainServ.findUserById((Long) session.getAttribute("user_id"));
+    	City oneCity = mainServ.getCity(city_id);
+    	
+    	// ADD THE USER OBJECT TO WISHLIST LIST
+    	oneCity.getLoggingUsers().add(oneUser);
+    	
+    	// SAVE NEW CITY TO DB
+    	mainServ.saveCity(oneCity);
+    	return "redirect:/traveldoggos";
+    }
     
-    
-    
+    // REMOVE A CITY FROM WISHLIST
+    @GetMapping("/traveldoggos/{id}/remove")
+    public String removeCity(@PathVariable("id") Long city_id, HttpSession session) {
+    	// login check
+    	
+    	
+    	User oneUser = mainServ.findUserById((Long) session.getAttribute("user_id"));
+    	City oneCity = mainServ.getCity(city_id);
+    	
+    	// ADD THE USER OBJECT TO WISHLIST LIST
+    	oneCity.getLoggingUsers().remove(oneUser);
+    	
+    	// SAVE NEW CITY TO DB
+    	mainServ.saveCity(oneCity);
+    	return "redirect:/traveldoggos";
+    }
     
     
 }

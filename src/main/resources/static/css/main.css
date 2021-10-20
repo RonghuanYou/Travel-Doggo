@@ -10,14 +10,15 @@ body {
 
 .nav-color{
 	color: white;
+	text-decoration: none;
 }
 
 .btn-bg{
 	background-color: #3895D3;
-	color: white;
+	color: #e4e6eb;
 	border: 1px solid white;
-	
 }
+
 .bg-color{
 	background-color: black;
 }
@@ -27,8 +28,8 @@ body {
 }
 
 
-.range-width{
-	width: 200px;
+.input-width{
+	width: 350px;
 }
 
 
@@ -40,6 +41,13 @@ body {
 .ctable-color{
  	color: rgb(186, 180, 171);
 }
+
+.link-color{
+	color: #58a6ff;
+	text-decoration: none;
+}
+
+
 
 #map {
   height: 400px;

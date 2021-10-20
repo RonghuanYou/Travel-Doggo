@@ -1,12 +1,20 @@
 package com.ronghuan.project2.models;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -14,6 +22,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="visited_cities")
@@ -37,7 +47,30 @@ public class City {
     private Integer rating;
     
     // --------------------- RELATIONSHIPS ---------------------    
-
+    // MANY TO ONE (CITIES ARE CREATED BY ONE USER)
+    @JsonIgnore
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="user_id")
+    private User creator;
+    
+    
+    // MANY TO MANY(CITY-REVIEWS)
+    @JsonIgnore
+    @OneToMany(mappedBy="city", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Comment> comments;
+    
+    
+    // MANY TO MANY WITHOUT MIDDLE MODEL (CITIES CAN BE ADDED BY MANY USERS)
+    @JsonIgnore
+    @ManyToMany(fetch=FetchType.LAZY)
+    @JoinTable(
+    	name = "users_cities",
+    	joinColumns = @JoinColumn(name = "city_id"),
+    	inverseJoinColumns = @JoinColumn(name = "user_id")    		
+    )
+    private List<User> loggingUsers;    
+        
+    
     // CONSTRUCTORS
     // EMPTY
     public City() {
@@ -84,6 +117,36 @@ public class City {
 	public void setRating(Integer rating) {
 		this.rating = rating;
 	}
+	
+	
+	// ---- RELNS -----
+	public User getCreator() {
+		return creator;
+	}
+
+	public void setCreator(User creator) {
+		this.creator = creator;
+	}
+	
+	public List<Comment> getComments() {
+		return comments;
+	}
+
+
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
+	}
+	
+
+	public List<User> getLoggingUsers() {
+		return loggingUsers;
+	}
+
+	public void setLoggingUsers(List<User> loggingUsers) {
+		this.loggingUsers = loggingUsers;
+	}
+
+	// ------- 
 	public Date getCreatedAt() {
 		return createdAt;
 	}
@@ -96,7 +159,7 @@ public class City {
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
 	}
-
+	
 	
 	// -------
 	@Column(updatable=false)
